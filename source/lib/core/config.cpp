@@ -271,11 +271,15 @@ configure_settings(bool _init)
         get_env<size_t>("OMNITRACE_NUM_THREADS", 1), "threading", "performance",
         "sampling", "parallelism", "advanced");
 
-    OMNITRACE_CONFIG_SETTING(bool, "OMNITRACE_USE_PERFETTO", "Enable perfetto backend",
+    OMNITRACE_CONFIG_SETTING(bool, "OMNITRACE_TRACE", "Enable perfetto backend",
                              _default_perfetto_v, "backend", "perfetto");
+    
+    OMNITRACE_CONFIG_SETTING(bool, "OMNITRACE_USE_PERFETTO",
+                            "[DEPRECATED] Renamed to OMNITRACE_TRACE",
+                             _default_perfetto_v, "backend", "perfetto", "deprecated");
 
     OMNITRACE_CONFIG_SETTING(bool, "OMNITRACE_USE_TIMEMORY", "Enable timemory backend",
-                             !_config->get<bool>("OMNITRACE_USE_PERFETTO"), "backend",
+                             !_config->get<bool>("OMNITRACE_TRACE"), "backend",
                              "timemory");
 
     OMNITRACE_CONFIG_SETTING(bool, "OMNITRACE_USE_CAUSAL",
@@ -1067,6 +1071,7 @@ configure_settings(bool _init)
     handle_deprecated_setting("OMNITRACE_USE_THREAD_SAMPLING",
                               "OMNITRACE_USE_PROCESS_SAMPLING");
     handle_deprecated_setting("OMNITRACE_OUTPUT_FILE", "OMNITRACE_PERFETTO_FILE");
+    handle_deprecated_setting("OMNITRACE_USE_PERFETTO", "OMNITRACE_TRACE");
 
     scope::get_fields()[scope::flat::value]     = _config->get_flat_profile();
     scope::get_fields()[scope::timeline::value] = _config->get_timeline_profile();
@@ -1128,7 +1133,7 @@ configure_mode_settings(const std::shared_ptr<settings>& _config)
     if(get_mode() == Mode::Coverage)
     {
         set_default_setting_value("OMNITRACE_USE_CODE_COVERAGE", true);
-        _set("OMNITRACE_USE_PERFETTO", false);
+        _set("OMNITRACE_TRACE", false);
         _set("OMNITRACE_USE_TIMEMORY", false);
         _set("OMNITRACE_USE_CAUSAL", false);
         _set("OMNITRACE_USE_ROCM_SMI", false);
@@ -1144,7 +1149,7 @@ configure_mode_settings(const std::shared_ptr<settings>& _config)
     else if(get_mode() == Mode::Causal)
     {
         _set("OMNITRACE_USE_CAUSAL", true);
-        _set("OMNITRACE_USE_PERFETTO", false);
+        _set("OMNITRACE_TRACE", false);
         _set("OMNITRACE_USE_TIMEMORY", false);
         _set("OMNITRACE_CRITICAL_TRACE", false);
         _set("OMNITRACE_USE_SAMPLING", false);
@@ -1193,7 +1198,7 @@ configure_mode_settings(const std::shared_ptr<settings>& _config)
 
     if(!_config->get_enabled())
     {
-        _set("OMNITRACE_USE_PERFETTO", false);
+        _set("OMNITRACE_USE_TRACE", false);
         _set("OMNITRACE_USE_TIMEMORY", false);
         _set("OMNITRACE_USE_CAUSAL", false);
         _set("OMNITRACE_USE_ROCM_SMI", false);
@@ -1379,7 +1384,7 @@ configure_disabled_settings(const std::shared_ptr<settings>& _config)
     _handle_use_option("OMNITRACE_USE_PROCESS_SAMPLING", "process_sampling");
     _handle_use_option("OMNITRACE_USE_CAUSAL", "causal");
     _handle_use_option("OMNITRACE_USE_KOKKOSP", "kokkos");
-    _handle_use_option("OMNITRACE_USE_PERFETTO", "perfetto");
+    _handle_use_option("OMNITRACE_USE_TRACE", "perfetto");
     _handle_use_option("OMNITRACE_USE_TIMEMORY", "timemory");
     _handle_use_option("OMNITRACE_USE_OMPT", "ompt");
     _handle_use_option("OMNITRACE_USE_RCCLP", "rcclp");
@@ -1845,7 +1850,7 @@ get_verbose()
 bool&
 get_use_perfetto()
 {
-    static auto _v = get_config()->find("OMNITRACE_USE_PERFETTO");
+    static auto _v = get_config()->find("OMNITRACE_TRACE");
     return static_cast<tim::tsettings<bool>&>(*_v->second).get();
 }
 
