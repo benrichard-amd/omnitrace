@@ -85,7 +85,7 @@ endif()
 # set the compiler flags
 #
 add_flag_if_avail(
-    "-W" "-Wall" "-Wno-unknown-pragmas" "-Wno-unused-function" "-Wno-ignored-attributes"
+    "-UUSE_PROF_API" "-W" "-Wall" "-Wno-unknown-pragmas" "-Wno-unused-function" "-Wno-ignored-attributes"
     "-Wno-attributes" "-Wno-missing-field-initializers" "-Wno-interference-size")
 
 if(OMNITRACE_BUILD_DEBUG)
